@@ -55,6 +55,17 @@
       "category": "pessoal",
       "priority": "Média",
       "status": "Concluído"
+    },
+    {
+      "id": "8a8d",
+      "title": "teste",
+      "description": "tedededededed",
+      "category": "teste",
+      "priority": "Média",
+      "status": "Pendente",
+      "userId": "1",
+      "createdAt": "2025-07-15T01:48:47.859Z",
+      "updatedAt": "2025-07-15T01:48:47.859Z"
     }
   ]
 }

@@ -1,0 +1,60 @@
+{
+  "users": [
+    {
+      "id": "1",
+      "name": "Roberto Tupinambá",
+      "email": "roberto@example.com",
+      "password": "123456"
+    },
+    {
+      "id": "2",
+      "name": "Maria Souza",
+      "email": "maria@example.com",
+      "password": "abcdef"
+    },
+    {
+      "id": "3015",
+      "name": "teste roberto",
+      "email": "teste@etste.com",
+      "password": "123456"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "1",
+      "userId": 1,
+      "title": "Finalizar protótipo do dashboard",
+      "description": "Terminar o layout analítico e gráficos com base nos dados",
+      "category": "trabalho",
+      "priority": "Alta",
+      "status": "Em Progresso"
+    },
+    {
+      "id": "2",
+      "userId": 1,
+      "title": "Ler e-mails acumulados",
+      "description": "Verificar todos os e-mails da semana passada",
+      "category": "pessoal",
+      "priority": "Baixa",
+      "status": "Pendente"
+    },
+    {
+      "id": "3",
+      "userId": 2,
+      "title": "Estudar Zustand",
+      "description": "Estudar Zustand para usar no projeto de frontend",
+      "category": "trabalho",
+      "priority": "Média",
+      "status": "Concluído"
+    },
+    {
+      "id": "4",
+      "userId": 1,
+      "title": "Atualizar perfil no LinkedIn",
+      "description": "Adicionar projetos recentes e atualizar descrição",
+      "category": "pessoal",
+      "priority": "Média",
+      "status": "Concluído"
+    }
+  ]
+}

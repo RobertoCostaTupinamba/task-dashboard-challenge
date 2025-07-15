@@ -4,6 +4,7 @@ import { useAuthStore } from "../stores/authStore";
 import { TaskList } from "../components/TaskList";
 import { TaskFilters } from "../components/TaskFilters";
 import { TaskForm } from "../components/TaskForm";
+import type { Task } from "../types/task";
 
 interface TasksPageProps {
   onNavigateBack?: () => void;
@@ -22,6 +23,7 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
   const { user } = useAuthStore();
 
   const [showForm, setShowForm] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [filteredTasks, setFilteredTasks] = useState(tasks);
 
   useEffect(() => {
@@ -55,11 +57,23 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
 
   const handleFormClose = () => {
     setShowForm(false);
+    setSelectedTask(null);
   };
 
   const handleFormSuccess = () => {
     setShowForm(false);
+    setSelectedTask(null);
     loadTasks();
+  };
+
+  const handleEditTask = (task: Task) => {
+    setSelectedTask(task);
+    setShowForm(true);
+  };
+
+  const handleNewTask = () => {
+    setSelectedTask(null);
+    setShowForm(true);
   };
 
   const handleRefresh = () => {
@@ -114,7 +128,7 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
             </div>
           </div>
           <button
-            onClick={() => setShowForm(true)}
+            onClick={handleNewTask}
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
           >
             <svg
@@ -136,7 +150,7 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
       </div>
 
       {/* Estatísticas rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
@@ -204,9 +218,9 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
                 <svg
-                  className="w-5 h-5 text-yellow-600"
+                  className="w-5 h-5 text-blue-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -216,6 +230,41 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
                     strokeLinejoin="round"
                     strokeWidth={2}
                     d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <div className="ml-5 w-0 flex-1">
+              <dl>
+                <dt className="text-sm font-medium text-gray-500 truncate">
+                  Em Progresso
+                </dt>
+                <dd className="text-lg font-medium text-gray-900">
+                  {
+                    tasks.filter((task) => task.status === "Em Progresso")
+                      .length
+                  }
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
                 </svg>
               </div>
@@ -297,14 +346,18 @@ export const TasksPage: React.FC<TasksPageProps> = ({ onNavigateBack }) => {
             </div>
           </div>
         ) : (
-          <TaskList tasks={filteredTasks} onRefresh={handleRefresh} />
+          <TaskList
+            tasks={filteredTasks}
+            onRefresh={handleRefresh}
+            onEditTask={handleEditTask}
+          />
         )}
       </div>
 
       {/* Modal de formulário */}
       {showForm && (
         <TaskForm
-          task={null}
+          task={selectedTask}
           onCancel={handleFormClose}
           onSuccess={handleFormSuccess}
         />

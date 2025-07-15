@@ -1,21 +1,22 @@
-import React, { useState } from "react";
+import React from "react";
 import { useTaskStore } from "../stores/taskStore";
-import { TaskForm } from "./TaskForm";
 import type { Task } from "../types/task";
 
 interface TaskListProps {
   tasks: Task[];
   onRefresh: () => void;
+  onEditTask: (task: Task) => void;
 }
 
-export const TaskList: React.FC<TaskListProps> = ({ tasks, onRefresh }) => {
+export const TaskList: React.FC<TaskListProps> = ({
+  tasks,
+  onRefresh,
+  onEditTask,
+}) => {
   const { deleteTask, isLoading } = useTaskStore();
-  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [showForm, setShowForm] = useState(false);
 
   const handleEdit = (task: Task) => {
-    setSelectedTask(task);
-    setShowForm(true);
+    onEditTask(task);
   };
 
   const handleDelete = async (taskId: string) => {
@@ -27,17 +28,6 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onRefresh }) => {
         // Erro será tratado pelo store
       }
     }
-  };
-
-  const handleFormClose = () => {
-    setShowForm(false);
-    setSelectedTask(null);
-  };
-
-  const handleFormSuccess = () => {
-    setShowForm(false);
-    setSelectedTask(null);
-    onRefresh();
   };
 
   const getPriorityColor = (priority: string) => {
@@ -169,14 +159,6 @@ export const TaskList: React.FC<TaskListProps> = ({ tasks, onRefresh }) => {
           </div>
         ))}
       </div>
-
-      {showForm && (
-        <TaskForm
-          task={selectedTask}
-          onCancel={handleFormClose}
-          onSuccess={handleFormSuccess}
-        />
-      )}
     </>
   );
 };

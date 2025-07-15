@@ -53,6 +53,15 @@ export const TaskForm: React.FC<TaskFormProps> = ({
         priority: task.priority,
         status: task.status,
       });
+    } else {
+      // Reset form when no task is selected (creating new task)
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        priority: "Média",
+        status: "Pendente",
+      });
     }
   }, [task]);
 
@@ -132,7 +141,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+      style={{ zIndex: 9999 }}
+    >
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">

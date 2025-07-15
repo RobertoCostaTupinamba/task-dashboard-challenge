@@ -25,6 +25,7 @@ import { useAuthStore } from "../../stores/authStore";
 
 describe("TaskList", () => {
   const mockOnRefresh = vi.fn();
+  const mockOnEditTask = vi.fn();
   const mockDeleteTask = vi.fn();
   const mockUseTaskStore = vi.mocked(useTaskStore);
   const mockUseAuthStore = vi.mocked(useAuthStore);
@@ -88,6 +89,11 @@ describe("TaskList", () => {
       logout: vi.fn(),
       clearError: vi.fn(),
     });
+
+    mockOnRefresh.mockClear();
+    mockOnEditTask.mockClear();
+    mockDeleteTask.mockClear();
+    vi.mocked(window.confirm).mockClear();
   });
 
   afterEach(() => {
@@ -96,7 +102,13 @@ describe("TaskList", () => {
 
   describe("Rendering", () => {
     it("renders tasks list", () => {
-      render(<TaskList tasks={mockTasks} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={mockTasks}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       expect(screen.getByText("Tarefa 1")).toBeInTheDocument();
       expect(screen.getByText("Tarefa 2")).toBeInTheDocument();
@@ -104,7 +116,13 @@ describe("TaskList", () => {
     });
 
     it("renders message when there are no tasks", () => {
-      render(<TaskList tasks={[]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       expect(screen.getByText("Nenhuma tarefa encontrada")).toBeInTheDocument();
       expect(
@@ -113,7 +131,13 @@ describe("TaskList", () => {
     });
 
     it("renders task information correctly", () => {
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       expect(screen.getByText("Tarefa 1")).toBeInTheDocument();
       expect(screen.getByText("Descrição da tarefa 1")).toBeInTheDocument();
@@ -123,19 +147,31 @@ describe("TaskList", () => {
     });
 
     it("renders correct colors for priority", () => {
-      render(<TaskList tasks={mockTasks} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={mockTasks}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
-      const altaPrioridade = screen.getByText("Alta");
-      const mediaPrioridade = screen.getByText("Média");
-      const baixaPrioridade = screen.getByText("Baixa");
+      const alta = screen.getByText("Alta");
+      const media = screen.getByText("Média");
+      const baixa = screen.getByText("Baixa");
 
-      expect(altaPrioridade).toHaveClass("text-red-600", "bg-red-100");
-      expect(mediaPrioridade).toHaveClass("text-yellow-600", "bg-yellow-100");
-      expect(baixaPrioridade).toHaveClass("text-green-600", "bg-green-100");
+      expect(alta).toHaveClass("text-red-600", "bg-red-100");
+      expect(media).toHaveClass("text-yellow-600", "bg-yellow-100");
+      expect(baixa).toHaveClass("text-green-600", "bg-green-100");
     });
 
     it("renders correct colors for status", () => {
-      render(<TaskList tasks={mockTasks} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={mockTasks}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const pendente = screen.getByText("Pendente");
       const emProgresso = screen.getByText("Em Progresso");
@@ -147,7 +183,13 @@ describe("TaskList", () => {
     });
 
     it("renders action buttons for each task", () => {
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const editButtons = screen.getAllByTitle("Editar tarefa");
       const deleteButtons = screen.getAllByTitle("Deletar tarefa");
@@ -158,19 +200,31 @@ describe("TaskList", () => {
   });
 
   describe("Interactions", () => {
-    it("opens edit modal when clicking edit button", () => {
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+    it("calls onEditTask when clicking edit button", () => {
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const editButton = screen.getByTitle("Editar tarefa");
       fireEvent.click(editButton);
 
-      expect(screen.getByText("Editar Tarefa")).toBeInTheDocument();
+      expect(mockOnEditTask).toHaveBeenCalledWith(mockTasks[0]);
     });
 
     it("deletes task when confirming in modal", async () => {
       vi.mocked(window.confirm).mockReturnValue(true);
 
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const deleteButton = screen.getByTitle("Deletar tarefa");
       fireEvent.click(deleteButton);
@@ -184,7 +238,13 @@ describe("TaskList", () => {
     it("does not delete task when cancelling in modal", () => {
       vi.mocked(window.confirm).mockReturnValue(false);
 
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const deleteButton = screen.getByTitle("Deletar tarefa");
       fireEvent.click(deleteButton);
@@ -212,96 +272,16 @@ describe("TaskList", () => {
         clearFilters: vi.fn(),
       });
 
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const deleteButton = screen.getByTitle("Deletar tarefa");
       expect(deleteButton).toBeDisabled();
-    });
-  });
-
-  describe("Form modal", () => {
-    it("closes modal when clicking cancel", () => {
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
-
-      const editButton = screen.getByTitle("Editar tarefa");
-      fireEvent.click(editButton);
-
-      expect(screen.getByText("Editar Tarefa")).toBeInTheDocument();
-
-      const cancelButton = screen.getByText("Cancelar");
-      fireEvent.click(cancelButton);
-
-      expect(screen.queryByText("Editar Tarefa")).not.toBeInTheDocument();
-    });
-
-    it("closes modal and updates list when saving successfully", async () => {
-      const mockUpdateTask = vi.fn().mockResolvedValue({});
-      mockUseTaskStore.mockReturnValue({
-        deleteTask: mockDeleteTask,
-        isLoading: false,
-        createTask: vi.fn(),
-        updateTask: mockUpdateTask,
-        categories: ["trabalho", "pessoal"],
-        getCategories: vi.fn(),
-        error: null,
-        clearError: vi.fn(),
-        tasks: [],
-        stats: null,
-        filters: {},
-        getTasks: vi.fn(),
-        getStats: vi.fn(),
-        setFilters: vi.fn(),
-        clearFilters: vi.fn(),
-      });
-
-      mockUseAuthStore.mockReturnValue({
-        user: { id: "1", name: "Test User", email: "test@example.com" },
-        isAuthenticated: true,
-        isLoading: false,
-        error: null,
-        login: vi.fn(),
-        register: vi.fn(),
-        logout: vi.fn(),
-        clearError: vi.fn(),
-      });
-
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
-
-      const editButton = screen.getByTitle("Editar tarefa");
-      fireEvent.click(editButton);
-
-      expect(screen.getByText("Editar Tarefa")).toBeInTheDocument();
-
-      // Preencher campos obrigatórios
-      const titleInput = screen.getByDisplayValue("Tarefa 1");
-      fireEvent.change(titleInput, { target: { value: "Tarefa Atualizada" } });
-
-      const descriptionInput = screen.getByDisplayValue(
-        "Descrição da tarefa 1"
-      );
-      fireEvent.change(descriptionInput, {
-        target: { value: "Descrição atualizada" },
-      });
-
-      const categorySelect = screen.getByLabelText(/categoria/i);
-      fireEvent.change(categorySelect, { target: { value: "trabalho" } });
-
-      const updateButton = screen.getByText("Atualizar");
-      fireEvent.click(updateButton);
-
-      await waitFor(
-        () => {
-          expect(mockOnRefresh).toHaveBeenCalled();
-        },
-        { timeout: 2000 }
-      );
-
-      await waitFor(
-        () => {
-          expect(screen.queryByText("Editar Tarefa")).not.toBeInTheDocument();
-        },
-        { timeout: 2000 }
-      );
     });
   });
 
@@ -310,16 +290,23 @@ describe("TaskList", () => {
       vi.mocked(window.confirm).mockReturnValue(true);
       mockDeleteTask.mockRejectedValue(new Error("Erro ao deletar"));
 
-      render(<TaskList tasks={[mockTasks[0]]} onRefresh={mockOnRefresh} />);
+      render(
+        <TaskList
+          tasks={[mockTasks[0]]}
+          onRefresh={mockOnRefresh}
+          onEditTask={mockOnEditTask}
+        />
+      );
 
       const deleteButton = screen.getByTitle("Deletar tarefa");
       fireEvent.click(deleteButton);
 
       await waitFor(() => {
         expect(mockDeleteTask).toHaveBeenCalledWith("1");
-        // O erro é tratado pelo store, então não chamamos onRefresh
-        expect(mockOnRefresh).not.toHaveBeenCalled();
       });
+
+      // onRefresh não deve ser chamado em caso de erro
+      expect(mockOnRefresh).not.toHaveBeenCalled();
     });
   });
 });

@@ -31,11 +31,6 @@ export const useAuthStore = create<AuthStore>((set) => ({
     set({ isLoading: true, error: null });
 
     try {
-      // Validar se as senhas coincidem
-      if (data.password !== data.confirmPassword) {
-        throw new Error("As senhas não coincidem");
-      }
-
       const user = await authService.register(data);
       authService.saveUserToStorage(user);
       set({

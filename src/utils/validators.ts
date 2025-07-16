@@ -1,4 +1,5 @@
 import type { LoginData, RegisterData } from "../types/auth";
+import type { TaskFormData } from "../types/task";
 
 export const validateEmail = (email: string): string | null => {
   if (!email) {
@@ -85,6 +86,29 @@ export const validateRegisterForm = (
   );
   if (confirmPasswordError) {
     errors.confirmPassword = confirmPasswordError;
+  }
+
+  return errors;
+};
+
+export const validateTaskForm = (
+  data: TaskFormData,
+  isCustom: boolean,
+  customCategory: string
+): Partial<Record<keyof TaskFormData, string>> => {
+  const errors: Partial<Record<keyof TaskFormData, string>> = {};
+
+  if (!data.title.trim()) {
+    errors.title = "Título é obrigatório";
+  }
+
+  if (!data.description.trim()) {
+    errors.description = "Descrição é obrigatória";
+  }
+
+  const categoryValue = isCustom ? customCategory : data.category;
+  if (!categoryValue.trim()) {
+    errors.category = "Categoria é obrigatória";
   }
 
   return errors;

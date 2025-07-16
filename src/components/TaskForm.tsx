@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTaskStore } from "../stores/taskStore";
 import { useAuthStore } from "../stores/authStore";
 import { TASK_STATUS_OPTIONS, TASK_PRIORITY_OPTIONS } from "../types/task";
 import type { Task, CreateTaskRequest, UpdateTaskRequest } from "../types/task";
+import { validateTaskForm } from "../utils/validators";
 
 interface TaskFormProps {
   task?: Task | null;
@@ -71,66 +72,70 @@ export const TaskForm: React.FC<TaskFormProps> = ({
     }
   }, [error, clearError]);
 
-  const validateForm = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
-    if (!formData.title.trim()) {
-      newErrors.title = "Título é obrigatório";
-    }
-
-    if (!formData.description.trim()) {
-      newErrors.description = "Descrição é obrigatória";
-    }
-
-    const categoryValue = showCustomCategory
-      ? customCategory
-      : formData.category;
-    if (!categoryValue.trim()) {
-      newErrors.category = "Categoria é obrigatória";
-    }
-
+  const validateForm = useCallback((): boolean => {
+    const newErrors = validateTaskForm(
+      formData,
+      showCustomCategory,
+      customCategory
+    );
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData, showCustomCategory, customCategory]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!validateForm() || !user) return;
+      if (!validateForm() || !user) return;
 
-    const categoryValue = showCustomCategory
-      ? customCategory
-      : formData.category;
-    const taskData = {
-      title: formData.title.trim(),
-      description: formData.description.trim(),
-      category: categoryValue.trim(),
-      priority: formData.priority,
-      status: formData.status,
-    };
+      const categoryValue = showCustomCategory
+        ? customCategory
+        : formData.category;
+      const taskData = {
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        category: categoryValue.trim(),
+        priority: formData.priority,
+        status: formData.status,
+      };
 
-    try {
-      if (task) {
-        await updateTask(task.id, taskData as UpdateTaskRequest);
-      } else {
-        await createTask(user.id.toString(), taskData as CreateTaskRequest);
+      try {
+        if (task) {
+          await updateTask(task.id, taskData as UpdateTaskRequest);
+        } else {
+          await createTask(user.id.toString(), taskData as CreateTaskRequest);
+        }
+        onSuccess();
+      } catch {
+        // Erro será tratado pelo store
       }
-      onSuccess();
-    } catch {
-      // Erro será tratado pelo store
-    }
-  };
+    },
+    [
+      validateForm,
+      user,
+      showCustomCategory,
+      customCategory,
+      formData,
+      task,
+      updateTask,
+      createTask,
+      onSuccess,
+    ]
+  );
 
-  const handleChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = useCallback(
+    (field: string, value: string) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
 
-    // Limpar erro do campo quando usuário digita
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
-    }
-  };
+      // Limpar erro do campo quando usuário digita
+      if (errors[field]) {
+        setErrors((prev) => ({ ...prev, [field]: "" }));
+      }
+    },
+    [errors]
+  );
 
-  const handleCategoryChange = (value: string) => {
+  const handleCategoryChange = useCallback((value: string) => {
     if (value === "custom") {
       setShowCustomCategory(true);
       setCustomCategory("");
@@ -138,7 +143,7 @@ export const TaskForm: React.FC<TaskFormProps> = ({
       setShowCustomCategory(false);
       setFormData((prev) => ({ ...prev, category: value }));
     }
-  };
+  }, []);
 
   return (
     <div

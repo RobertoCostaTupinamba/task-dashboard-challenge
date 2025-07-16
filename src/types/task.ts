@@ -26,6 +26,14 @@ export interface UpdateTaskRequest {
   status?: "Pendente" | "Em Progresso" | "Concluído";
 }
 
+export interface TaskFormData {
+  title: string;
+  description: string;
+  category: string;
+  priority: "Alta" | "Média" | "Baixa";
+  status: "Pendente" | "Em Progresso" | "Concluído";
+}
+
 export interface TaskFilters {
   status?: "Pendente" | "Em Progresso" | "Concluído";
   category?: string;

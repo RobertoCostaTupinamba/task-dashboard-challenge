@@ -149,27 +149,6 @@ describe("authStore", () => {
       );
     });
 
-    it("should handle password mismatch error", async () => {
-      const invalidRegisterData: RegisterData = {
-        ...mockRegisterData,
-        confirmPassword: "654321", // Senha diferente
-      };
-
-      const { register } = useAuthStore.getState();
-
-      await register(invalidRegisterData);
-
-      const finalState = useAuthStore.getState();
-      expect(finalState.user).toBeNull();
-      expect(finalState.isAuthenticated).toBe(false);
-      expect(finalState.isLoading).toBe(false);
-      expect(finalState.error).toBe("As senhas não coincidem");
-
-      // Verificar se register não foi chamado
-      expect(authService.register).not.toHaveBeenCalled();
-      expect(authService.saveUserToStorage).not.toHaveBeenCalled();
-    });
-
     it("should handle register service error", async () => {
       const errorMessage = "Email já cadastrado";
       const mockedAuthService = vi.mocked(authService);

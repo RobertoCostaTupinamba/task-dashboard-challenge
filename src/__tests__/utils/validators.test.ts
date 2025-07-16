@@ -205,6 +205,43 @@ describe("validators", () => {
       expect(allErrors.email).toBe("Email inválido");
       expect(allErrors.password).toBe("Senha deve ter pelo menos 6 caracteres");
     });
+
+    it("should only set errors when validation fails", () => {
+      // Teste apenas com email inválido
+      const emailOnlyInvalid: LoginData = {
+        email: "invalid",
+        password: "validpassword",
+      };
+      const emailErrors = validateLoginForm(emailOnlyInvalid);
+      expect(emailErrors.email).toBe("Email inválido");
+      expect(emailErrors.password).toBeUndefined();
+
+      // Teste apenas com password inválido
+      const passwordOnlyInvalid: LoginData = {
+        email: "valid@test.com",
+        password: "123",
+      };
+      const passwordErrors = validateLoginForm(passwordOnlyInvalid);
+      expect(passwordErrors.email).toBeUndefined();
+      expect(passwordErrors.password).toBe(
+        "Senha deve ter pelo menos 6 caracteres"
+      );
+    });
+
+    it("should handle all email regex patterns", () => {
+      const emailTests = [
+        { email: "test@", expected: "Email inválido" },
+        { email: "@test.com", expected: "Email inválido" },
+        { email: "test@test", expected: "Email inválido" },
+        { email: "test.test.com", expected: "Email inválido" },
+        { email: "test space@test.com", expected: "Email inválido" },
+      ];
+
+      emailTests.forEach(({ email, expected }) => {
+        const errors = validateLoginForm({ email, password: "123456" });
+        expect(errors.email).toBe(expected);
+      });
+    });
   });
 
   describe("validateRegisterForm", () => {
@@ -281,6 +318,60 @@ describe("validators", () => {
       };
       const whitespaceErrors = validateRegisterForm(whitespaceData);
       expect(whitespaceErrors.email).toBe("Email inválido"); // email com espaços é inválido
+    });
+
+    it("should only set errors for failing validations", () => {
+      // Teste com apenas um campo inválido por vez
+      const testCases = [
+        {
+          data: {
+            name: "",
+            email: "test@test.com",
+            password: "123456",
+            confirmPassword: "123456",
+          },
+          expectedErrors: ["name"],
+        },
+        {
+          data: {
+            name: "Test",
+            email: "invalid",
+            password: "123456",
+            confirmPassword: "123456",
+          },
+          expectedErrors: ["email"],
+        },
+        {
+          data: {
+            name: "Test",
+            email: "test@test.com",
+            password: "123",
+            confirmPassword: "123",
+          },
+          expectedErrors: ["password"],
+        },
+        {
+          data: {
+            name: "Test",
+            email: "test@test.com",
+            password: "123456",
+            confirmPassword: "different",
+          },
+          expectedErrors: ["confirmPassword"],
+        },
+      ];
+
+      testCases.forEach(({ data, expectedErrors }) => {
+        const errors = validateRegisterForm(data);
+        expectedErrors.forEach((field) => {
+          expect(errors[field as keyof RegisterData]).toBeDefined();
+        });
+
+        // Verificar que outros campos não têm erro
+        Object.keys(errors).forEach((errorField) => {
+          expect(expectedErrors).toContain(errorField);
+        });
+      });
     });
   });
 
@@ -406,6 +497,234 @@ describe("validators", () => {
         "Categoria Personalizada"
       );
       expect(Object.keys(errors)).toHaveLength(0);
+    });
+
+    it("should test all trim() behaviors comprehensively", () => {
+      // Testar todos os cenários de trim para title
+      const titleTests = [
+        { title: "", expected: "Título é obrigatório" },
+        { title: "   ", expected: "Título é obrigatório" },
+        { title: "\t\n\r", expected: "Título é obrigatório" },
+        { title: "  valid title  ", expected: undefined },
+      ];
+
+      titleTests.forEach(({ title, expected }) => {
+        const errors = validateTaskForm(
+          {
+            title,
+            description: "Valid desc",
+            category: "Valid cat",
+            priority: "Alta",
+            status: "Pendente",
+          },
+          false,
+          ""
+        );
+        if (expected) {
+          expect(errors.title).toBe(expected);
+        } else {
+          expect(errors.title).toBeUndefined();
+        }
+      });
+
+      // Testar todos os cenários de trim para description
+      const descriptionTests = [
+        { description: "", expected: "Descrição é obrigatória" },
+        { description: "   ", expected: "Descrição é obrigatória" },
+        { description: "\t\n", expected: "Descrição é obrigatória" },
+        { description: "  valid description  ", expected: undefined },
+      ];
+
+      descriptionTests.forEach(({ description, expected }) => {
+        const errors = validateTaskForm(
+          {
+            title: "Valid title",
+            description,
+            category: "Valid cat",
+            priority: "Alta",
+            status: "Pendente",
+          },
+          false,
+          ""
+        );
+        if (expected) {
+          expect(errors.description).toBe(expected);
+        } else {
+          expect(errors.description).toBeUndefined();
+        }
+      });
+
+      // Testar todos os cenários de trim para category (modo normal)
+      const categoryTests = [
+        { category: "", expected: "Categoria é obrigatória" },
+        { category: "   ", expected: "Categoria é obrigatória" },
+        { category: "\t\r\n", expected: "Categoria é obrigatória" },
+        { category: "  valid category  ", expected: undefined },
+      ];
+
+      categoryTests.forEach(({ category, expected }) => {
+        const errors = validateTaskForm(
+          {
+            title: "Valid title",
+            description: "Valid desc",
+            category,
+            priority: "Alta",
+            status: "Pendente",
+          },
+          false,
+          ""
+        );
+        if (expected) {
+          expect(errors.category).toBe(expected);
+        } else {
+          expect(errors.category).toBeUndefined();
+        }
+      });
+
+      // Testar todos os cenários de trim para customCategory (modo custom)
+      const customCategoryTests = [
+        { customCategory: "", expected: "Categoria é obrigatória" },
+        { customCategory: "   ", expected: "Categoria é obrigatória" },
+        { customCategory: "\t\n\r", expected: "Categoria é obrigatória" },
+        { customCategory: "  valid custom category  ", expected: undefined },
+      ];
+
+      customCategoryTests.forEach(({ customCategory, expected }) => {
+        const errors = validateTaskForm(
+          {
+            title: "Valid title",
+            description: "Valid desc",
+            category: "ignored",
+            priority: "Alta",
+            status: "Pendente",
+          },
+          true,
+          customCategory
+        );
+        if (expected) {
+          expect(errors.category).toBe(expected);
+        } else {
+          expect(errors.category).toBeUndefined();
+        }
+      });
+    });
+
+    it("should test category validation mode switching", () => {
+      const baseTask: TaskFormData = {
+        title: "Valid title",
+        description: "Valid description",
+        category: "Regular Category",
+        priority: "Alta",
+        status: "Pendente",
+      };
+
+      // Modo normal - deve usar data.category
+      const normalModeErrors = validateTaskForm(
+        baseTask,
+        false,
+        "Custom Category"
+      );
+      expect(Object.keys(normalModeErrors)).toHaveLength(0);
+
+      // Modo custom - deve usar customCategory
+      const customModeErrors = validateTaskForm(
+        { ...baseTask, category: "" }, // category vazio é ignorado
+        true,
+        "Valid Custom Category"
+      );
+      expect(Object.keys(customModeErrors)).toHaveLength(0);
+
+      // Modo custom com customCategory inválido
+      const invalidCustomErrors = validateTaskForm(
+        { ...baseTask, category: "Will be ignored" },
+        true,
+        "" // customCategory vazio
+      );
+      expect(invalidCustomErrors.category).toBe("Categoria é obrigatória");
+    });
+
+    it("should handle all possible error combinations", () => {
+      // Todos os campos inválidos no modo normal
+      const allInvalidNormal = validateTaskForm(
+        {
+          title: "   ",
+          description: "",
+          category: "\t\n",
+          priority: "Alta",
+          status: "Pendente",
+        },
+        false,
+        "ignored"
+      );
+      expect(allInvalidNormal.title).toBe("Título é obrigatório");
+      expect(allInvalidNormal.description).toBe("Descrição é obrigatória");
+      expect(allInvalidNormal.category).toBe("Categoria é obrigatória");
+
+      // Todos os campos inválidos no modo custom
+      const allInvalidCustom = validateTaskForm(
+        {
+          title: "",
+          description: "   ",
+          category: "ignored",
+          priority: "Média",
+          status: "Em Progresso",
+        },
+        true,
+        "\r\n\t"
+      );
+      expect(allInvalidCustom.title).toBe("Título é obrigatório");
+      expect(allInvalidCustom.description).toBe("Descrição é obrigatória");
+      expect(allInvalidCustom.category).toBe("Categoria é obrigatória");
+    });
+
+    it("should validate individual fields independently", () => {
+      const baseValid: TaskFormData = {
+        title: "Valid Title",
+        description: "Valid Description",
+        category: "Valid Category",
+        priority: "Baixa",
+        status: "Concluído",
+      };
+
+      // Apenas title inválido
+      const titleOnlyInvalid = validateTaskForm(
+        { ...baseValid, title: "" },
+        false,
+        ""
+      );
+      expect(titleOnlyInvalid.title).toBe("Título é obrigatório");
+      expect(titleOnlyInvalid.description).toBeUndefined();
+      expect(titleOnlyInvalid.category).toBeUndefined();
+
+      // Apenas description inválido
+      const descriptionOnlyInvalid = validateTaskForm(
+        { ...baseValid, description: "   " },
+        false,
+        ""
+      );
+      expect(descriptionOnlyInvalid.title).toBeUndefined();
+      expect(descriptionOnlyInvalid.description).toBe(
+        "Descrição é obrigatória"
+      );
+      expect(descriptionOnlyInvalid.category).toBeUndefined();
+
+      // Apenas category inválido (modo normal)
+      const categoryOnlyInvalid = validateTaskForm(
+        { ...baseValid, category: "" },
+        false,
+        ""
+      );
+      expect(categoryOnlyInvalid.title).toBeUndefined();
+      expect(categoryOnlyInvalid.description).toBeUndefined();
+      expect(categoryOnlyInvalid.category).toBe("Categoria é obrigatória");
+
+      // Apenas customCategory inválido (modo custom)
+      const customCategoryOnlyInvalid = validateTaskForm(baseValid, true, "");
+      expect(customCategoryOnlyInvalid.title).toBeUndefined();
+      expect(customCategoryOnlyInvalid.description).toBeUndefined();
+      expect(customCategoryOnlyInvalid.category).toBe(
+        "Categoria é obrigatória"
+      );
     });
   });
 });

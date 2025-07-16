@@ -20,11 +20,11 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const [errors, setErrors] = useState<Partial<RegisterData>>({});
   const { register, isLoading, error, clearError } = useAuthStore();
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors = validateRegisterForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

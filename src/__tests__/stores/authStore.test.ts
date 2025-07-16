@@ -278,6 +278,18 @@ describe("authStore", () => {
 
       expect(mockedAuthService.getUserFromStorage).toHaveBeenCalled();
     });
+
+    it("should work with no user in storage", () => {
+      const mockedAuthService = vi.mocked(authService);
+      mockedAuthService.getUserFromStorage.mockReturnValue(null);
+
+      const initialState = useAuthStore.getState();
+      initializeAuthStore();
+
+      const finalState = useAuthStore.getState();
+      expect(finalState).toEqual(initialState);
+      expect(mockedAuthService.getUserFromStorage).toHaveBeenCalled();
+    });
   });
 
   describe("Store Methods", () => {
@@ -427,6 +439,54 @@ describe("authStore", () => {
 
       const finalState = useAuthStore.getState();
       expect(finalState.error).toBe("Network Error");
+      expect(finalState.isLoading).toBe(false);
+    });
+
+    it("should handle register with null error", async () => {
+      const mockedAuthService = vi.mocked(authService);
+      mockedAuthService.register.mockRejectedValue(null);
+
+      const { register } = useAuthStore.getState();
+      await register(mockRegisterData);
+
+      const finalState = useAuthStore.getState();
+      expect(finalState.error).toBe("Erro desconhecido");
+      expect(finalState.isLoading).toBe(false);
+    });
+
+    it("should handle register with non-Error object", async () => {
+      const mockedAuthService = vi.mocked(authService);
+      mockedAuthService.register.mockRejectedValue({ code: "AUTH_ERROR" });
+
+      const { register } = useAuthStore.getState();
+      await register(mockRegisterData);
+
+      const finalState = useAuthStore.getState();
+      expect(finalState.error).toBe("Erro desconhecido");
+      expect(finalState.isLoading).toBe(false);
+    });
+
+    it("should handle string errors in login", async () => {
+      const mockedAuthService = vi.mocked(authService);
+      mockedAuthService.login.mockRejectedValue("String error message");
+
+      const { login } = useAuthStore.getState();
+      await login(mockLoginData);
+
+      const finalState = useAuthStore.getState();
+      expect(finalState.error).toBe("Erro desconhecido");
+      expect(finalState.isLoading).toBe(false);
+    });
+
+    it("should handle string errors in register", async () => {
+      const mockedAuthService = vi.mocked(authService);
+      mockedAuthService.register.mockRejectedValue("Registration failed");
+
+      const { register } = useAuthStore.getState();
+      await register(mockRegisterData);
+
+      const finalState = useAuthStore.getState();
+      expect(finalState.error).toBe("Erro desconhecido");
       expect(finalState.isLoading).toBe(false);
     });
   });

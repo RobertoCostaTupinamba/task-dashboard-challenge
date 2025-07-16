@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuthStore } from "../stores/authStore";
 import type { LoginData } from "../types/auth";
 import { validateLoginForm } from "../utils/validators";
@@ -16,30 +16,36 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const [errors, setErrors] = useState<Partial<LoginData>>({});
   const { login, isLoading, error, clearError } = useAuthStore();
 
-  const validateForm = (): boolean => {
+  const validateForm = useCallback((): boolean => {
     const newErrors = validateLoginForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
+  }, [formData]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    clearError();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      clearError();
 
-    if (validateForm()) {
-      await login(formData);
-    }
-  };
+      if (validateForm()) {
+        await login(formData);
+      }
+    },
+    [clearError, validateForm, login, formData]
+  );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Limpar erro do campo quando o usuário começar a digitar
-    if (errors[name as keyof LoginData]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
+      // Limpar erro do campo quando o usuário começar a digitar
+      if (errors[name as keyof LoginData]) {
+        setErrors((prev) => ({ ...prev, [name]: undefined }));
+      }
+    },
+    [errors]
+  );
 
   return (
     <div className="w-full max-w-md mx-auto">

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { useAuthStore } from "../stores/authStore";
 import type { RegisterData } from "../types/auth";
 import { validateRegisterForm } from "../utils/validators";
@@ -26,24 +26,30 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    clearError();
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      clearError();
 
-    if (validateForm()) {
-      await register(formData);
-    }
-  };
+      if (validateForm()) {
+        await register(formData);
+      }
+    },
+    [clearError, validateForm, register, formData]
+  );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
 
-    // Limpar erro do campo quando o usuário começar a digitar
-    if (errors[name as keyof RegisterData]) {
-      setErrors((prev) => ({ ...prev, [name]: undefined }));
-    }
-  };
+      // Limpar erro do campo quando o usuário começar a digitar
+      if (errors[name as keyof RegisterData]) {
+        setErrors((prev) => ({ ...prev, [name]: undefined }));
+      }
+    },
+    [errors]
+  );
 
   return (
     <div className="w-full max-w-md mx-auto">

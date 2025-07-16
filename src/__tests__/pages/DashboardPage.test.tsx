@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
 // Mock TasksPage antes de qualquer importação
-vi.mock("../pages/TasksPage", () => ({
+vi.mock("../../pages/TasksPage", () => ({
   TasksPage: ({ onNavigateBack }: { onNavigateBack: () => void }) => (
     <div data-testid="tasks-page">
       <div>Tasks Page</div>

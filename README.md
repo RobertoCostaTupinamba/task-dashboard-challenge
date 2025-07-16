@@ -208,8 +208,9 @@ src/
 
 #### 🧪 Qualidade
 
-- [x] Testes unitários abrangentes (27+ testes)
-- [x] Cobertura de código com Vitest
+- [x] Testes unitários abrangentes com 99.44% de cobertura
+- [x] Suite de testes robusta para todos os componentes
+- [x] Cobertura de código com Vitest e relatórios detalhados
 - [x] Tipagem TypeScript completa
 - [x] Linting com ESLint
 - [x] Arquitetura componentizada
@@ -253,6 +254,44 @@ O projeto possui cobertura de testes para:
 - ✅ Serviços de API
 - ✅ Stores de estado
 - ✅ Validações de formulário
+
+### 📊 Cobertura de Código
+
+O projeto mantém uma excelente cobertura de testes com **99.44%** de statements cobertos:
+
+```
+File                    % Stmts   % Branch   % Funcs   % Lines   Uncovered Line #s
+------------------------|---------|----------|---------|---------|------------------
+ALL files               |  99.44  |   95.75  |   94.5  |  99.44  |
+ src                    |   100   |    100   |   100   |   100   |
+  App.tsx               |   100   |    100   |   100   |   100   |
+ src/components         |  99.36  |   95.69  |  88.09  |  99.36  |
+  LoginForm.tsx         |  98.21  |     96   |   100   |  98.21  | 24-25
+  RegisterForm.tsx      |  98.8   |   97.29  |   100   |  98.8   | 34-35
+  TaskCategoryChart.tsx |   100   |   88.88  |  66.66  |   100   | 71
+  TaskFilters.tsx       |   100   |    100   |   100   |   100   |
+  TaskForm.tsx          |  99.64  |   96.49  |    75   |  99.64  | 121
+  TaskList.tsx          |  98.51  |     90   |   100   |  98.51  | 42,55
+  TaskStatsCards.tsx    |   100   |    100   |   100   |   100   |
+  TaskStatusChart.tsx   |   100   |     90   |  66.66  |   100   | 61
+ src/pages              |   100   |    100   |   100   |   100   |
+  AuthPage.tsx          |   100   |    100   |   100   |   100   |
+  DashboardPage.tsx     |   100   |    100   |   100   |   100   |
+  TasksPage.tsx         |   100   |    100   |   100   |   100   |
+ src/services           |  98.03  |   96.96  |   100   |  98.03  |
+  authService.ts        |  94.59  |   88.23  |   100   |  94.59  | 46-47,80-81
+  taskService.ts        |   100   |    100   |   100   |   100   |
+ src/stores             |   100   |   90.38  |   100   |   100   |
+  authStore.ts          |   100   |    100   |   100   |   100   |
+  taskStore.ts          |   100   |   85.29  |   100   |   100   | 68,87,104,121,138
+```
+
+**Métricas de Qualidade:**
+
+- 📈 **99.44%** de cobertura de statements
+- 🌿 **95.75%** de cobertura de branches
+- ⚡ **94.5%** de cobertura de funções
+- 📋 **99.44%** de cobertura de linhas
 
 ```bash
 # Rodar todos os testes

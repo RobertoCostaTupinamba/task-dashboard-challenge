@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import type { RegisterData } from "../types/auth";
+import { validateRegisterForm } from "../utils/validators";
 
 interface RegisterFormProps {
   onSwitchToLogin: () => void;
@@ -20,32 +21,7 @@ export const RegisterForm: React.FC<RegisterFormProps> = ({
   const { register, isLoading, error, clearError } = useAuthStore();
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<RegisterData> = {};
-
-    if (!formData.name) {
-      newErrors.name = "Nome é obrigatório";
-    } else if (formData.name.length < 2) {
-      newErrors.name = "Nome deve ter pelo menos 2 caracteres";
-    }
-
-    if (!formData.email) {
-      newErrors.email = "Email é obrigatório";
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Email inválido";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Senha é obrigatória";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Confirmação de senha é obrigatória";
-    } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "As senhas não coincidem";
-    }
-
+    const newErrors = validateRegisterForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

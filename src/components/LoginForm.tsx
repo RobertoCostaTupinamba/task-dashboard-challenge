@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../stores/authStore";
 import type { LoginData } from "../types/auth";
+import { validateLoginForm } from "../utils/validators";
 
 interface LoginFormProps {
   onSwitchToRegister: () => void;
@@ -16,20 +17,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToRegister }) => {
   const { login, isLoading, error, clearError } = useAuthStore();
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<LoginData> = {};
-
-    if (!formData.email) {
-      newErrors.email = "Email é obrigatório";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Email inválido";
-    }
-
-    if (!formData.password) {
-      newErrors.password = "Senha é obrigatória";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Senha deve ter pelo menos 6 caracteres";
-    }
-
+    const newErrors = validateLoginForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
